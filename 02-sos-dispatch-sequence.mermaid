@@ -1,0 +1,24 @@
+sequenceDiagram
+    actor U as User (PWA)
+    participant GW as API Gateway
+    participant D as Dispatch Service
+    participant R as Redis (Geo Index)
+    participant N as Notification Gateway
+    actor Resp as Nearest Responder
+    participant A as Audit Service
+    participant PG as PostgreSQL
+
+    U->>GW: POST /v1/sos {geo, type, verified_token}
+    GW->>D: Forward SOS (authenticated)
+    D->>R: GEOSEARCH nearest verified responders within radius
+    R-->>D: Ranked responder list
+    D->>N: Push alert to top-N responders (WS + push fallback)
+    N-->>Resp: Real-time SOS alert + live location
+    Resp->>N: ACK (accept) within SLA window
+    N-->>D: Responder accepted
+    D-->>U: Live status update ("Help is on the way")
+    Note over D,N: If no ACK in 60s, auto-escalate to next-nearest + admin
+    Resp->>N: Incident resolved
+    N->>A: Log full incident timeline
+    A->>PG: Persist immutable audit record
+    A-->>U: Resolution confirmation

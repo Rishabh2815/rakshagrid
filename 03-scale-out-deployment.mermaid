@@ -1,0 +1,32 @@
+flowchart TB
+    subgraph Control["Global Control Plane (single region)"]
+        TenantReg["Tenant Registry &<br/>Billing / Provisioning"]
+        Route53["Route 53<br/>Latency + Health-Check Routing"]
+    end
+
+    subgraph RegionA["Region A Data Plane (e.g. ap-south-1)"]
+        ALBA["ALB"]
+        ASGA["Auto Scaling Group<br/>Go services (Dispatch, Notify, Audit)"]
+        RedisA[("Redis Cluster<br/>Geo index")]
+        RDSA[("RDS Primary<br/>Postgres")]
+    end
+
+    subgraph RegionB["Region B Data Plane (warm standby)"]
+        ALBB["ALB"]
+        ASGB["Auto Scaling Group<br/>(scaled down, warm)"]
+        RedisB[("Redis Cluster<br/>Geo index")]
+        RDSB[("RDS Cross-Region<br/>Read Replica")]
+    end
+
+    TenantReg --> Route53
+    Route53 -->|"Primary traffic"| ALBA
+    Route53 -.->|"Failover on health-check breach"| ALBB
+
+    ALBA --> ASGA --> RedisA
+    ASGA --> RDSA
+    RDSA -.->|"Async cross-region replication"| RDSB
+
+    ALBB --> ASGB --> RedisB
+    ASGB --> RDSB
+
+    note1["Campus tenants sharded by region for latency +<br/>data-residency compliance.<br/>Small/pilot tenants: shared Postgres schema (tenant_id).<br/>Large tenants: isolated schema for compliance needs."]

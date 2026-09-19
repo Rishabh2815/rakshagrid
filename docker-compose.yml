@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: rakshagrid
+      POSTGRES_PASSWORD: rakshagrid
+      POSTGRES_DB: rakshagrid
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rakshagrid"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      HTTP_PORT: "8080"
+      POSTGRES_DSN: "postgres://rakshagrid:rakshagrid@postgres:5432/rakshagrid?sslmode=disable"
+      REDIS_ADDR: "redis:6379"
+      JWT_SECRET: "dev-secret-change-me"
+      SOS_ACK_SLA: "60s"
+      DISPATCH_RADIUS_KM: "2.0"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

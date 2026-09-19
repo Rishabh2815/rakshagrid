@@ -1,0 +1,52 @@
+flowchart TB
+    subgraph Client["Client Layer"]
+        PWA["Student/User PWA<br/>(Offline-first, Service Worker cache)"]
+        AdminUI["Institute Admin Dashboard<br/>(React)"]
+        ResponderApp["Responder PWA<br/>(Warden / Security / Volunteer)"]
+    end
+
+    subgraph Edge["Edge"]
+        LB["Load Balancer / API Gateway<br/>(Go, JWT auth, rate limiting)"]
+    end
+
+    subgraph Services["Application Services (Go) — modular monolith at launch"]
+        Auth["Auth & Identity Service<br/>(user + responder verification, JWT)"]
+        Dispatch["SOS Dispatch Service<br/>(geo-match orchestration)"]
+        Responder["Responder Registry Service<br/>(availability, presence heartbeat)"]
+        Notify["Notification / Realtime Gateway<br/>(WebSocket fan-out + push fallback)"]
+        Audit["Audit & Compliance Service<br/>(immutable incident logging)"]
+        Tenant["Tenant Management Service<br/>(campus onboarding, billing hooks)"]
+    end
+
+    subgraph Data["Data Layer"]
+        Redis[("Redis<br/>Geospatial index (GEOADD/GEOSEARCH)<br/>+ presence pub/sub")]
+        PG[("PostgreSQL<br/>Users, Responders, Incidents, Tenants")]
+        S3[("Object Storage<br/>Incident evidence / attachments")]
+        Queue[("Event Queue<br/>(durable incident + notification events)")]
+    end
+
+    subgraph Obs["Observability"]
+        Prom["Prometheus"]
+        Graf["Grafana"]
+    end
+
+    PWA -->|"HTTPS / WSS"| LB
+    AdminUI --> LB
+    ResponderApp --> LB
+
+    LB --> Auth
+    LB --> Dispatch
+    LB --> Notify
+    LB --> Audit
+    LB --> Tenant
+
+    Dispatch <--> Redis
+    Responder <--> Redis
+    Dispatch --> Queue
+    Notify <--> Queue
+    Audit --> PG
+    Tenant --> PG
+    Auth --> PG
+    Audit --> S3
+
+    Services -.metrics.-> Prom --> Graf
