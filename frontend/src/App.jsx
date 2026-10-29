@@ -7,7 +7,7 @@ import "./App.css";
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null); // "user", "responder", "admin"
+  const [role, setRole] = useState(null);
 
   const handleLogout = () => {
     localStorage.removeItem("jwt_token");
@@ -28,8 +28,10 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🛡️ RakshaGrid</h1>
-        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        <div className="header-content">
+          <h1 className="logo">🛡️ RakshaGrid</h1>
+          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        </div>
       </header>
 
       <main className="app-main">
