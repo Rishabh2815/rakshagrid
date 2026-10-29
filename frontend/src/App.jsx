@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import LoginForm from "./pages/LoginForm";
 import SOSButton from "./pages/SOSButton";
 import ResponderDashboard from "./pages/ResponderDashboard";
@@ -8,16 +8,6 @@ import "./App.css";
 export default function App() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null); // "user", "responder", "admin"
-
-  useEffect(() => {
-    // Check if user is logged in (from localStorage)
-    const token = localStorage.getItem("jwt_token");
-    const storedRole = localStorage.getItem("user_role");
-    if (token && storedRole) {
-      setUser(token);
-      setRole(storedRole);
-    }
-  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("jwt_token");
@@ -37,12 +27,12 @@ export default function App() {
 
   return (
     <div className="app">
-      <header>
+      <header className="app-header">
         <h1>🛡️ RakshaGrid</h1>
-        <button onClick={handleLogout}>Logout</button>
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </header>
 
-      <main>
+      <main className="app-main">
         {role === "user" && <SOSButton />}
         {role === "responder" && <ResponderDashboard />}
         {role === "admin" && <AdminDashboard />}

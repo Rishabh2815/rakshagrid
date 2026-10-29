@@ -1,80 +1,179 @@
 .sos-container {
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: center;
-  padding: 3rem;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+  padding: 2rem;
+  animation: fadeIn 0.8s ease-out;
 }
 
-.sos-container h2 {
+.sos-content {
+  max-width: 600px;
+  width: 100%;
+  animation: slideInLeft 0.8s ease-out;
+}
+
+.sos-title {
   font-size: 2.5rem;
+  color: white;
+  text-align: center;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #6366f1 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.sos-description {
+  text-align: center;
+  color: #a0a0a0;
   margin-bottom: 2rem;
-  color: #333;
+  font-size: 1rem;
 }
 
 .location-info {
-  background: #f0f7ff;
-  border-left: 4px solid #667eea;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
   padding: 1rem;
-  border-radius: 6px;
+  border-radius: 12px;
   margin-bottom: 2rem;
-  color: #555;
+  animation: slideInLeft 0.5s ease-out 0.2s both;
+}
+
+.location-icon {
+  font-size: 1.5rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.location-text {
+  flex: 1;
+}
+
+.location-label {
+  color: #a0a0a0;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.location-coords {
+  color: #6366f1;
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: 'Courier New', monospace;
+}
+
+.error-banner {
+  background: rgba(239, 68, 68, 0.15);
+  border-left: 3px solid #ef4444;
+  color: #fca5a5;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+  animation: slideInLeft 0.3s ease-out;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin: 3rem 0;
 }
 
 .sos-button {
-  width: 200px;
-  height: 200px;
+  width: 280px;
+  height: 280px;
   border-radius: 50%;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin: 3rem 0;
-  display: inline-flex;
+  margin: 0 auto;
+  display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-  text-align: center;
-  padding: 2rem;
-  line-height: 1.4;
+  position: relative;
+  overflow: hidden;
+}
+
+.button-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.button-icon {
+  font-size: 3rem;
+  display: block;
+}
+
+.button-text {
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .sos-button.ready {
-  background: linear-gradient(135deg, #ff4757 0%, #ee5a6f 100%);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
-  animation: pulse 2s infinite;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  animation: pulse-ring 2s infinite, bounce-button 2s ease-in-out infinite;
 }
 
 .sos-button.ready:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 12px 40px rgba(255, 71, 87, 0.4);
+  transform: scale(1.08);
+  box-shadow: 0 20px 50px rgba(239, 68, 68, 0.5);
+}
+
+.sos-button.ready:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .sos-button.sending {
-  background: linear-gradient(135deg, #ffa502 0%, #ffb627 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: white;
   animation: spin 1s linear infinite;
 }
 
 .sos-button.sent {
-  background: linear-gradient(135deg, #2ed573 0%, #26de81 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
+  animation: none;
 }
 
-.sos-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-@keyframes pulse {
+@keyframes pulse-ring {
   0% {
-    box-shadow: 0 8px 30px rgba(255, 71, 87, 0.3);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
   }
-  50% {
-    box-shadow: 0 8px 50px rgba(255, 71, 87, 0.6);
+  70% {
+    box-shadow: 0 0 0 30px rgba(239, 68, 68, 0);
   }
   100% {
-    box-shadow: 0 8px 30px rgba(255, 71, 87, 0.3);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes bounce-button {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }
 
@@ -87,18 +186,71 @@
   }
 }
 
-.error-banner {
-  background: #fee;
-  color: #c33;
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 2rem;
-  border-left: 4px solid #c33;
+.sos-disclaimer {
+  text-align: center;
+  color: #707070;
+  font-size: 0.85rem;
+  margin-bottom: 3rem;
+  line-height: 1.5;
 }
 
-.disclaimer {
-  color: #666;
-  font-size: 0.95rem;
+.info-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
   margin-top: 2rem;
-  line-height: 1.6;
+}
+
+.info-card {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  animation: fadeIn 0.6s ease-out 0.3s both;
+}
+
+.info-card:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.5);
+  transform: translateY(-5px);
+}
+
+.card-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.card-content h3 {
+  color: #e0e0e0;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.card-content p {
+  color: #808080;
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+@media (max-width: 600px) {
+  .sos-button {
+    width: 200px;
+    height: 200px;
+  }
+
+  .button-icon {
+    font-size: 2rem;
+  }
+
+  .sos-title {
+    font-size: 1.8rem;
+  }
+
+  .info-cards {
+    grid-template-columns: 1fr;
+  }
 }
