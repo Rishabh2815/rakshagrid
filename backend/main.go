@@ -32,6 +32,11 @@ func main() {
 	}
 	defer pg.Close()
 
+	// Initialize schema and seed demo users
+	if err := db.InitializeSchema(pg); err != nil {
+		log.Fatalf("schema initialization failed: %v", err)
+	}
+
 	rdb, err := db.NewRedis(cfg.RedisAddr, cfg.RedisPassword)
 	if err != nil {
 		log.Fatalf("redis connection failed: %v", err)
