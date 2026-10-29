@@ -20,6 +20,7 @@ func NewService(secret string, expiry time.Duration) *Service {
 	}
 }
 
+// HashPassword creates a hash of the password (MVP - use bcrypt in production)
 func (s *Service) HashPassword(password string) string {
 	// NOTE: This is MVP only. Use bcrypt/argon2 in production.
 	h := sha256.New()
@@ -27,10 +28,12 @@ func (s *Service) HashPassword(password string) string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
+// VerifyPassword checks if a password matches its hash
 func (s *Service) VerifyPassword(password, hash string) bool {
 	return s.HashPassword(password) == hash
 }
 
+// GenerateToken creates a JWT token for a user
 func (s *Service) GenerateToken(userID string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
@@ -41,6 +44,7 @@ func (s *Service) GenerateToken(userID string) (string, error) {
 	return token.SignedString([]byte(s.jwtSecret))
 }
 
+// VerifyToken validates a JWT token and returns the user ID
 func (s *Service) VerifyToken(tokenString string) (string, error) {
 	token, err := jwt.ParseWithClaims(tokenString, jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(s.jwtSecret), nil
