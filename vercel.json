@@ -9,7 +9,8 @@
     },
     "backend": {
       "root": "backend",
-      "runtime": "go"
+      "runtime": "go",
+      "entrypoint": "main.go"
     }
   },
   "rewrites": [
