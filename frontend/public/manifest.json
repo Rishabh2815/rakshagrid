@@ -1,0 +1,34 @@
+{
+  "name": "RakshaGrid - Emergency Response System",
+  "short_name": "RakshaGrid",
+  "description": "Offline-first emergency SOS dispatch system for campuses",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23667eea' width='192' height='192'/><text x='96' y='120' font-size='80' font-weight='bold' fill='white' text-anchor='middle'>🛡️</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Raise SOS",
+      "short_name": "SOS",
+      "description": "Quickly raise an emergency SOS",
+      "url": "/?action=sos",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%23ff4757' width='96' height='96' rx='12'/><text x='48' y='60' font-size='40' fill='white' text-anchor='middle'>🆘</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+# Go
+backend/server
+backend/server.exe
+*.o
+*.a
+*.so
+dist/
+bin/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local

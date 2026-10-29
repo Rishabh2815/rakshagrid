@@ -1,0 +1,104 @@
+.sos-container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 3rem;
+}
+
+.sos-container h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.location-info {
+  background: #f0f7ff;
+  border-left: 4px solid #667eea;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 2rem;
+  color: #555;
+}
+
+.sos-button {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 3rem 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  padding: 2rem;
+  line-height: 1.4;
+}
+
+.sos-button.ready {
+  background: linear-gradient(135deg, #ff4757 0%, #ee5a6f 100%);
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.sos-button.ready:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px rgba(255, 71, 87, 0.4);
+}
+
+.sos-button.sending {
+  background: linear-gradient(135deg, #ffa502 0%, #ffb627 100%);
+  color: white;
+  animation: spin 1s linear infinite;
+}
+
+.sos-button.sent {
+  background: linear-gradient(135deg, #2ed573 0%, #26de81 100%);
+  color: white;
+}
+
+.sos-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 8px 30px rgba(255, 71, 87, 0.3);
+  }
+  50% {
+    box-shadow: 0 8px 50px rgba(255, 71, 87, 0.6);
+  }
+  100% {
+    box-shadow: 0 8px 30px rgba(255, 71, 87, 0.3);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error-banner {
+  background: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 2rem;
+  border-left: 4px solid #c33;
+}
+
+.disclaimer {
+  color: #666;
+  font-size: 0.95rem;
+  margin-top: 2rem;
+  line-height: 1.6;
+}
