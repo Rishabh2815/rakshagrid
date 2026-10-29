@@ -1,7 +1,8 @@
 // API client for RakshaGrid
 // Handles authentication, request formatting, and WebSocket connections
+// Uses /api/ paths for Vercel services deployment
 
-const API_BASE = process.env.REACT_APP_API_URL || "/v1";
+const API_BASE = "/api";
 
 export async function loginUser({ email, password, role }) {
   const response = await fetch(`${API_BASE}/auth/login`, {
@@ -51,7 +52,8 @@ export async function fetchIncidents() {
 export function setupWebSocket(onMessage) {
   const token = localStorage.getItem("jwt_token");
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  const ws = new WebSocket(`${protocol}//${window.location.host}/v1/stream?token=${token}`);
+  // Use same-origin WebSocket — Vercel rewrites /api/stream to backend
+  const ws = new WebSocket(`${protocol}//${window.location.host}/api/stream?token=${token}`);
 
   ws.onopen = () => {
     console.log("WebSocket connected");

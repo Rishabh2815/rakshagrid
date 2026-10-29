@@ -37,7 +37,7 @@ func Load() Config {
 
 	return Config{
 		HTTPPort:         getEnv("HTTP_PORT", "8080"),
-		PostgresDSN:      getEnv("POSTGRES_DSN", "postgres://rakshagrid:rakshagrid@localhost:5432/rakshagrid?sslmode=disable"),
+		PostgresDSN:      getEnv("POSTGRES_DSN", "postgres://rakshagrid:[REDACTED]@localhost:5432/rakshagrid?sslmode=disable"),
 		RedisAddr:        getEnv("REDIS_ADDR", "localhost:6379"),
 		RedisPassword:    getEnv("REDIS_PASSWORD", ""),
 		JWTSecret:        getEnv("JWT_SECRET", "dev-secret-change-me"),
@@ -48,7 +48,8 @@ func Load() Config {
 			"http://localhost:3000",
 			"http://localhost:5173",
 			"https://localhost",
-			os.Getenv("FRONTEND_URL"),
+			// In Vercel services: same-origin requests (no CORS policy needed)
+			// Backend served at /api, frontend at /
 		},
 	}
 }

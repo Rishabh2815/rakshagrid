@@ -1,9 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// Production-ready config for Railway + Vercel
-const backendURL = process.env.VITE_BACKEND_URL || "http://localhost:8080";
-
+// Vercel services handles /api routing via vercel.json
+// No need for local proxy in production
 export default defineConfig({
   plugins: [react()],
   build: {
@@ -13,10 +12,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/v1": {
-        target: backendURL,
+      "/api": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         ws: true,
+        // For local dev: map /api requests to backend server
       },
     },
   },

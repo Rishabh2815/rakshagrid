@@ -31,7 +31,7 @@ export default function SOSButton() {
 
     try {
       const token = localStorage.getItem("jwt_token");
-      const response = await fetch("/v1/sos/raise", {
+      const response = await fetch("/api/sos/raise", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

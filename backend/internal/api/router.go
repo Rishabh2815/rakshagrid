@@ -14,9 +14,9 @@ import (
 func NewRouter(pg *sql.DB, rdb *redis.Client, authSvc *auth.Service, jwtExpiry time.Duration, radiusKM float64, ackSLA time.Duration) *chi.Mux {
 	r := chi.NewRouter()
 
-	// CORS middleware - adjust in production
+	// CORS middleware - permissive for Vercel services (same origin)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:5173", "https://*"},
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		ExposedHeaders:   []string{"Link"},
@@ -24,22 +24,41 @@ func NewRouter(pg *sql.DB, rdb *redis.Client, authSvc *auth.Service, jwtExpiry t
 		MaxAge:           300,
 	}))
 
-	// Basic health check
+	// Health check - no prefix required
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"ok"}`))
 	})
 
-	// API v1 routes
-	r.Route("/v1", func(r chi.Router) {
-		// TODO: Add your SOS, dispatch, responder, audit endpoints here
-		// Example:
-		r.Post("/sos/raise", handleRaiseSOS(pg, rdb, authSvc))
-		r.Get("/responders/nearby", handleNearbyResponders(pg, rdb))
+	// API routes - served under /api by Vercel rewrite
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/login", handleLogin(authSvc))
 	})
 
+	r.Route("/sos", func(r chi.Router) {
+		r.Post("/raise", handleRaiseSOS(pg, rdb, authSvc))
+	})
+
+	r.Route("/responders", func(r chi.Router) {
+		r.Get("/nearby", handleNearbyResponders(pg, rdb))
+	})
+
+	r.Get("/incidents", handleFetchIncidents(pg))
+
+	// WebSocket stream for real-time updates
+	r.Get("/stream", handleWebSocketStream(pg, rdb, authSvc))
+
 	return r
+}
+
+func handleLogin(authSvc *auth.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// TODO: Implement login logic
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"token":"dummy-token","role":"user"}`))
+	}
 }
 
 func handleRaiseSOS(pg *sql.DB, rdb *redis.Client, authSvc *auth.Service) http.HandlerFunc {
@@ -57,5 +76,23 @@ func handleNearbyResponders(pg *sql.DB, rdb *redis.Client) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"responders":[]}`))
+	}
+}
+
+func handleFetchIncidents(pg *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// TODO: Implement incident fetching
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"incidents":[]}`))
+	}
+}
+
+func handleWebSocketStream(pg *sql.DB, rdb *redis.Client, authSvc *auth.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// TODO: Implement WebSocket stream for real-time updates
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusNotImplemented)
+		w.Write([]byte("WebSocket endpoint not yet implemented"))
 	}
 }
