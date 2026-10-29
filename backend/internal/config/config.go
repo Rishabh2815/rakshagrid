@@ -15,6 +15,7 @@ type Config struct {
 	DispatchRadiusKM  float64
 	SOSAckSLA         time.Duration
 	AllowedOrigins    []string
+	DemoMode          bool // Enable demo mode without database
 }
 
 func Load() Config {
@@ -35,9 +36,12 @@ func Load() Config {
 		// Ideally parse to float64, but skipping for brevity
 	}
 
+	// Enable demo mode if no database DSN provided
+	demoMode := os.Getenv("POSTGRES_DSN") == ""
+
 	return Config{
 		HTTPPort:         getEnv("HTTP_PORT", "8080"),
-		PostgresDSN:      getEnv("POSTGRES_DSN", "postgres://rakshagrid:[REDACTED]@localhost:5432/rakshagrid?sslmode=disable"),
+		PostgresDSN:      getEnv("POSTGRES_DSN", ""),
 		RedisAddr:        getEnv("REDIS_ADDR", "localhost:6379"),
 		RedisPassword:    getEnv("REDIS_PASSWORD", ""),
 		JWTSecret:        getEnv("JWT_SECRET", "dev-secret-change-me"),
@@ -48,9 +52,9 @@ func Load() Config {
 			"http://localhost:3000",
 			"http://localhost:5173",
 			"https://localhost",
-			// In Vercel services: same-origin requests (no CORS policy needed)
-			// Backend served at /api, frontend at /
+			"*", // Allow all in demo mode
 		},
+		DemoMode: demoMode,
 	}
 }
 

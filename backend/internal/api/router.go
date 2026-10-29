@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"github.com/redis/go-redis/v9"
 	"github.com/rishabhjha/rakshagrid/internal/auth"
 	"github.com/rishabhjha/rakshagrid/internal/models"
 	"github.com/rishabhjha/rakshagrid/internal/user"
@@ -16,15 +15,12 @@ import (
 
 type Router struct {
 	pg      *sql.DB
-	rdb     *redis.Client
+	rdb     interface{}
 	authSvc *auth.Service
-	userSvc *user.Service
+	userSvc user.UserService
 }
 
-func NewRouter(pg *sql.DB, rdb *redis.Client, authSvc *auth.Service, jwtExpiry time.Duration, radiusKM float64, ackSLA time.Duration) *chi.Mux {
-	userRepo := user.NewRepository(pg)
-	userSvc := user.NewService(userRepo, authSvc)
-
+func NewRouter(pg *sql.DB, rdb interface{}, authSvc *auth.Service, userSvc user.UserService, jwtExpiry time.Duration, radiusKM float64, ackSLA time.Duration) *chi.Mux {
 	router := &Router{
 		pg:      pg,
 		rdb:     rdb,

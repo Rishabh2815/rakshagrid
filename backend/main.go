@@ -21,40 +21,66 @@ import (
 	"github.com/rishabhjha/rakshagrid/internal/auth"
 	"github.com/rishabhjha/rakshagrid/internal/config"
 	"github.com/rishabhjha/rakshagrid/internal/db"
+	"github.com/rishabhjha/rakshagrid/internal/user"
 )
 
 func main() {
 	cfg := config.Load()
 
-	pg, err := db.NewPostgres(cfg.PostgresDSN)
-	if err != nil {
-		log.Fatalf("postgres connection failed: %v", err)
-	}
-	defer pg.Close()
+	var pg *sql.DB
+	var userSvc user.UserService
 
-	// Initialize schema and seed demo users
-	if err := db.InitializeSchema(pg); err != nil {
-		log.Fatalf("schema initialization failed: %v", err)
+	// If no database DSN, use demo mode
+	if cfg.DemoMode {
+		log.Println("⚠️  Running in DEMO MODE (no database)")
+		authSvc := auth.NewService(cfg.JWTSecret, cfg.JWTExpiry)
+		userSvc = user.NewDemoService(authSvc)
+	} else {
+		// Connect to database
+		var err error
+		pg, err = db.NewPostgres(cfg.PostgresDSN)
+		if err != nil {
+			log.Fatalf("postgres connection failed: %v", err)
+		}
+		defer pg.Close()
+
+		// Initialize schema and seed demo users
+		if err := db.InitializeSchema(pg); err != nil {
+			log.Fatalf("schema initialization failed: %v", err)
+		}
+
+		authSvc := auth.NewService(cfg.JWTSecret, cfg.JWTExpiry)
+		userRepo := user.NewRepository(pg)
+		userSvc = user.NewService(userRepo, authSvc)
+
+		log.Println("✅ Database initialized successfully")
 	}
 
-	rdb, err := db.NewRedis(cfg.RedisAddr, cfg.RedisPassword)
-	if err != nil {
-		log.Fatalf("redis connection failed: %v", err)
+	// Redis is optional
+	var rdb interface{}
+	if cfg.RedisAddr != "" {
+		var err error
+		rdb, err = db.NewRedis(cfg.RedisAddr, cfg.RedisPassword)
+		if err != nil {
+			log.Printf("⚠️  Redis connection failed: %v (continuing without Redis)", err)
+			rdb = nil
+		}
 	}
-	defer rdb.Close()
 
 	authSvc := auth.NewService(cfg.JWTSecret, cfg.JWTExpiry)
-	router := api.NewRouter(pg, rdb, authSvc, cfg.JWTExpiry, cfg.DispatchRadiusKM, cfg.SOSAckSLA)
+	router := api.NewRouter(pg, rdb, authSvc, userSvc, cfg.JWTExpiry, cfg.DispatchRadiusKM, cfg.SOSAckSLA)
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.HTTPPort,
 		Handler:      router,
 		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second, // longer than default to accommodate the WS stream endpoint
+		WriteTimeout: 30 * time.Second,
 	}
 
 	sweeperCtx, cancelSweeper := context.WithCancel(context.Background())
-	go runEscalationSweeper(sweeperCtx, pg, cfg.SOSAckSLA)
+	if pg != nil {
+		go runEscalationSweeper(sweeperCtx, pg, cfg.SOSAckSLA)
+	}
 
 	go func() {
 		log.Printf("rakshagrid server listening on :%s", cfg.HTTPPort)
