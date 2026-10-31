@@ -10,7 +10,7 @@
     "backend": {
       "root": "backend",
       "runtime": "go",
-      "entrypoint": "main.go"
+      "entrypoint": "handler.go"
     }
   },
   "rewrites": [
