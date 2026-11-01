@@ -45,36 +45,29 @@ func initializeVercelHandler() {
 	cfg := config.Load()
 	authSvc := auth.NewService(cfg.JWTSecret, cfg.JWTExpiry)
 
+	// Vercel services are stateless by default. Use in-memory demo accounts
+	// unless database persistence is explicitly enabled and configured.
 	var pg *sql.DB
 	var userSvc user.UserService
-	if cfg.PostgresDSN != "" {
+	if os.Getenv("ENABLE_DATABASE") == "true" && cfg.PostgresDSN != "" {
 		var err error
 		pg, err = db.NewPostgres(cfg.PostgresDSN)
 		if err != nil {
-			vercelHandlerErr = err
-			return
-		}
-		if err = db.InitializeSchema(pg); err != nil {
+			log.Printf("Database unavailable; using demo accounts: %v", err)
+			userSvc = user.NewDemoService(authSvc)
+		} else if err = db.InitializeSchema(pg); err != nil {
+			log.Printf("Database schema unavailable; using demo accounts: %v", err)
 			_ = pg.Close()
-			vercelHandlerErr = err
-			return
+			pg = nil
+			userSvc = user.NewDemoService(authSvc)
+		} else {
+			userSvc = user.NewService(user.NewRepository(pg), authSvc)
 		}
-		userSvc = user.NewService(user.NewRepository(pg), authSvc)
 	} else {
 		userSvc = user.NewDemoService(authSvc)
 	}
 
-	// Redis-backed routes are not needed for demo login; only initialize Redis
-	// if a deployment explicitly supplies its address.
-	var rdb interface{}
-	if addr := os.Getenv("REDIS_ADDR"); addr != "" {
-		client, err := db.NewRedis(addr, cfg.RedisPassword)
-		if err != nil {
-			log.Printf("Redis unavailable; continuing without Redis: %v", err)
-		} else {
-			rdb = client
-		}
-	}
-
-	vercelHandler = api.NewRouter(pg, rdb, authSvc, userSvc, cfg.JWTExpiry, cfg.DispatchRadiusKM, cfg.SOSAckSLA)
+	// Redis is not required for the demo login/API handlers and should not
+	// delay serving requests during Vercel function initialization.
+	vercelHandler = api.NewRouter(pg, nil, authSvc, userSvc, cfg.JWTExpiry, cfg.DispatchRadiusKM, cfg.SOSAckSLA)
 }
